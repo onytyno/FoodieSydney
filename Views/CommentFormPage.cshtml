@@ -1,0 +1,33 @@
+﻿@model FoodieSydney.Model.Comment
+@{
+    var commentModel = Model;
+
+    commentModel.CommentName = commentModel.GetNewCommentName();
+    var ContentId = commentModel.Content != null ? commentModel.Content.Id : 0;
+    var ParentContentId = commentModel.Content != null ? commentModel.Content.Parent.Id : 0;
+}
+@*@using (Html.BeginForm("NewComment", "Page", FormMethod.Post))*@
+@* @using (Ajax.BeginForm("NewCommentTest", "Page", new AjaxOptions { HttpMethod = "POST" }))
+{
+    <div>
+        <div class="inputCommentor">
+            @Html.LabelFor(m => m.CommentorName, new { @class = "commentLabel" })
+            <br />
+            @Html.TextBoxFor(m => m.CommentorName)
+            @Html.ValidationMessageFor(model => model.CommentorName)
+        </div>
+        <div class="inputCommentContent">
+            @Html.LabelFor(m => m.CommentContent, new { @class = "commentLabel" })
+            <br />
+            @Html.TextAreaFor(m => m.CommentContent, new { @class = "commentContentBox" })
+            @Html.ValidationMessageFor(model => model.CommentContent)
+        </div>
+        <div class="commentSubmit">
+            <input class="" type="submit" value="등록">
+        </div>
+
+        @Html.HiddenFor(m => m.ContentId, new { @Value = ContentId })
+        @Html.HiddenFor(m => m.CommentName, new { @Value = commentModel.CommentName })
+        @Html.HiddenFor(m => m.ParentContentId, new { @Value = ParentContentId })
+    </div>
+} *@

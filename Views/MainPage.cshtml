@@ -1,11 +1,17 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.MainPage>;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
-	Layout = "Master.cshtml";
-   var page = Model;
+    Layout = "Master.cshtml";
+    var page = Model;
 
-    var children = page.Children().Where(x => x.ContentType.Alias == "page");
+    var children = page.Children().Where(x => x.ContentType.Alias == "standardPage");
+
+    var t = page.Children("StandardPage");
     var enableCTA = page.Value<bool>("enableCTA");
+
+    var header = page.Value("Header");
+    var subHeader = page.Value("SubHeader");
+    var introduction = page.Value("Introduction");
 }
 <section class="section">
     <div id="main">
@@ -14,14 +20,14 @@
                 <div id="content" class="12u skel-cell-important">
                     <section>
                         <header>
-                            <h2>@page.Header</h2>
-                            @if (Page.SubHeader != null)
+                            <h2>@header</h2>
+                            @if (subHeader != null)
                             {
-                                <span class="byline">@Page.SubHeader</span>
+                                <span class="byline">subHeader</span>
                             }
                         </header>
                         <a href="#" class="image full"><img src="images/pic07.jpg" alt="" /></a>
-                        @page.Introduction
+                        @introduction
                     </section>
                 </div>
             </div>
@@ -36,22 +42,22 @@
                 <div class="row">
                     @if (children.Any())
                     {
-                        foreach (var child in children)
+                        foreach (var child in t)
                         {
-                            var header = child.Value("header");
-                            var subHeader = child.Value("subHeader");
+                            var chileHeader = child.Value("header");
+                            var chileSubHeader = child.Value("subHeader");
                             var image = child.Value<IPublishedContent>("image");
                             <div class="4u" style="padding-top:2em !important">
                                 <div class="container-background">
-                                    <h2>@header</h2>
+                                    <h2>@chileHeader</h2>
                                     @if (image != null)
                                     {
                                         <img src="@image.Url()" alt="" class="image full" style="max-width:100%; height:205px; object-fit:cover" />
                                     }
                                     <div id="introduction" class="container-min">
-                                        @subHeader
+                                        @chileSubHeader
                                     </div>
-                                    <p><a href="@child.Url" class="button" style="margin-top: 0.5em !important">자세히 살펴보기</a></p>
+                                    <p><a href="@child.Url()" class="button" style="margin-top: 0.5em !important">View More</a></p>
                                 </div>
                             </div>
                         }

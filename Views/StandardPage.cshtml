@@ -1,18 +1,26 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.StandardPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
-@@{
+@using Comment = FoodieSydney.Model.Comment;
+@{
     Layout = "master.cshtml";
     var page = Model;
     var SiblingPages = Model.Parent.Children.Where(x => x.ContentType.Alias == "page");
     var image = page.Value<IPublishedContent>("image");
     var enableImage = page.Value<bool>("enableImage");
-    var commentList = PageController.GetCommentList(page);
-    var commentFolder = page.Children.Where(x => x.ContentType.Alias == "commentFolder").FirstOrDefault();
+    //var commentList = PageController.GetCommentList(page);
+    //var commentFolder = page.Children.Where(x => x.ContentType.Alias == "commentFolder").FirstOrDefault();
     var enableComment = page.Value<bool>("enableComment");
-    var tes = new ONYT.Model.Comment { Content = commentFolder };
-    var SwitchListHeader = Model.Parent.Value<bool>("switchListHeaders");
-    var pageDetail = page.Value<IHtmlString>("pageDetail");
+    //var comments = Comment { Content = commentFolder };
+    //var SwitchListHeader = Model.Parent.Value<bool>("switchListHeaders");
+    //var pageDetail = page.Value<IHtmlString>("pageDetail");
+
+    var pageHeader = page.Value("Header");
+    var pageSubHeader = page.Value("SubHeader");
+    var pageCreatedDate = page.Value("CreateDate"); //.ToString("dd/MM/yyyy HH:mm");
+    var pageUpdatedDate = page.Value("UpdateDate"); //ToString("dd/MM/yyyy HH:mm");
+    var pageIntroduction = page.Value("Introduction");
+
 }
 
 <div id="main">
@@ -30,12 +38,12 @@
                             var subHeader = item.Value("subHeader");
 
                             //if  Switch list header value is true, then switch the values of header and subheader
-                            if (SwitchListHeader)
+@*                             if (SwitchListHeader)
                             {
                                 var temp = header;
                                 header = subHeader;
                                 subHeader = temp;
-                            }
+                            } *@
 
                             <li>
                                 <a href="@item.Url()" class="@(item.IsAncestorOrSelf(Model) ? "active" : null)" style="text-decoration: none;">
@@ -54,19 +62,19 @@
             <div id="content" class="8u skel-cell-important">
                 <section>
                     <header>
-                        <h2>@page.Header</h2>
-                        <span class="byline">@page.SubHeader</span>
-                        <p class="posted">@page.CreateDate.ToString("dd/MM/yyyy HH:mm") <br> 최근 수정일: @page.UpdateDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <h2>@pageHeader</h2>
+                        <span class="byline">@pageSubHeader</span>
+                        <p class="posted">@pageCreatedDate <br> Recent Updated Date: pageUpdatedDate</p>
                     </header>
                     <div class="pageDetail">
-                        @pageDetail
+                       @*  @pageDetail *@
                     </div>
                     @if (image != null && enableImage)
                     {
                         <img src="@image.Url()" alt="" class="image full" />
                     }
 
-                    @page.Introduction
+                    @pageIntroduction
                 </section>
 
                 @if (enableComment)
@@ -79,7 +87,7 @@
                                     <h2>댓글:</h2>
                                     <div class="commentList">
                                         <ul>
-                                            @foreach (var comment in commentList)
+                                          @*   @foreach (var comment in commentList)
                                             {
                                                 <li>
                                                     <div class="commentor">
@@ -89,12 +97,12 @@
                                                         @comment.CommentContent
                                                     </div>
                                                 </li>
-                                            }
+                                            } *@
                                         </ul>
                                     </div>
                                     <h3>댓글 쓰기:</h3>
                                     
-                                    @{Html.RenderPartial("~/Views/Partials/ONYT/CommentFormPage.cshtml", tes);}
+                                    @* @{Html.RenderPartial("~/Views/Partials/ONYT/CommentFormPage.cshtml", comments);} *@
                                     <p>* 불건전한 코멘트는 삭제됩니다.</p>
                                 </div>
                             </div>
@@ -103,7 +111,7 @@
                 }
                 @if (SiblingPages != null)
                 {
-                    @Umbraco.RenderMacro("PageNavigation")
+                    @*  @await Umbraco.RenderMacroAsync("PageNavigation"); *@
                 }
             </div>
         </div>
