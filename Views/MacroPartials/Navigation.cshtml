@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Macros.PartialViewMacroPage
+@{
+    var site = Model.Content;
+    
+    var selection = site.Children.Where(x => x.IsVisible());
+}
+<ul>
+    @foreach (var item in selection)
+    {
+        <li><a class="@(item.IsAncestorOrSelf(site) ? "active" : null)" href="@item.Url("en")">@item.Value("Header")</a></li>
+    }
+</ul>
