@@ -6,11 +6,13 @@
     {
         var temp = site.Parent;
 
-        if (temp.Level > 1)
+        while(temp.Level > 1)
         {
-
+            var t = temp.Parent;
+            temp = t;
         }
-        else if (temp.Level == 1)
+
+        if (temp.Level == 1)
             site = temp;
     }
 

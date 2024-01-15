@@ -7,7 +7,7 @@
     var ParentContentId = commentModel.Content != null ? commentModel.Content.Parent.Id : 0;
 }
 @*@using (Html.BeginForm("NewComment", "Page", FormMethod.Post))*@
-@* @using (Ajax.BeginForm("NewCommentTest", "Page", new AjaxOptions { HttpMethod = "POST" }))
+@using (Ajax.BeginForm("NewCommentTest", "Page", new AjaxOptions { HttpMethod = "POST" }))
 {
     <div>
         <div class="inputCommentor">
@@ -30,4 +30,4 @@
         @Html.HiddenFor(m => m.CommentName, new { @Value = commentModel.CommentName })
         @Html.HiddenFor(m => m.ParentContentId, new { @Value = ParentContentId })
     </div>
-} *@
+}

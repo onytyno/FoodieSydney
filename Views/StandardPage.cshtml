@@ -2,23 +2,24 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.StandardPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @using Comment = FoodieSydney.Model.Comment;
+@using PageController = FoodieSydney.Controller.PageController;
 @{
     Layout = "master.cshtml";
     var page = Model;
     var SiblingPages = Model.Parent.Children.Where(x => x.ContentType.Alias == "page");
     var image = page.Value<IPublishedContent>("image");
     var enableImage = page.Value<bool>("enableImage");
-    //var commentList = PageController.GetCommentList(page);
-    //var commentFolder = page.Children.Where(x => x.ContentType.Alias == "commentFolder").FirstOrDefault();
+    var commentList = PageController.GetCommentList(page);
+    var commentFolder = page.Children.Where(x => x.ContentType.Alias == "commentFolder").FirstOrDefault();
     var enableComment = page.Value<bool>("enableComment");
-    //var comments = Comment { Content = commentFolder };
+    var comments = new Comment { Content = commentFolder };
     //var SwitchListHeader = Model.Parent.Value<bool>("switchListHeaders");
     //var pageDetail = page.Value<IHtmlString>("pageDetail");
 
     var pageHeader = page.Value("Header");
     var pageSubHeader = page.Value("SubHeader");
-    var pageCreatedDate = page.Value("CreateDate"); //.ToString("dd/MM/yyyy HH:mm");
-    var pageUpdatedDate = page.Value("UpdateDate"); //ToString("dd/MM/yyyy HH:mm");
+    var pageCreatedDate = page.CreateDate.ToString("dd/MM/yyyy HH:mm"); 
+    var pageUpdatedDate = page.UpdateDate.ToString("dd/MM/yyyy HH:mm");
     var pageIntroduction = page.Value("Introduction");
 
 }
@@ -64,7 +65,7 @@
                     <header>
                         <h2>@pageHeader</h2>
                         <span class="byline">@pageSubHeader</span>
-                        <p class="posted">@pageCreatedDate <br> Recent Updated Date: pageUpdatedDate</p>
+                        <p class="posted">@pageCreatedDate <br> Recent Updated Date: @pageUpdatedDate</p>
                     </header>
                     <div class="pageDetail">
                        @*  @pageDetail *@
@@ -84,10 +85,10 @@
                         <div class="container">
                             <div class="row">
                                 <div class="commentBox">
-                                    <h2>댓글:</h2>
+                                    <h2>Comments:</h2>
                                     <div class="commentList">
                                         <ul>
-                                          @*   @foreach (var comment in commentList)
+                                            @foreach (var comment in commentList)
                                             {
                                                 <li>
                                                     <div class="commentor">
@@ -97,13 +98,12 @@
                                                         @comment.CommentContent
                                                     </div>
                                                 </li>
-                                            } *@
+                                            }
                                         </ul>
                                     </div>
-                                    <h3>댓글 쓰기:</h3>
+                                    <h3>Write Comment:</h3>
                                     
-                                    @* @{Html.RenderPartial("~/Views/Partials/ONYT/CommentFormPage.cshtml", comments);} *@
-                                    <p>* 불건전한 코멘트는 삭제됩니다.</p>
+                                    @{Html.RenderPartial("~/Views/CommentFormPage.cshtml", comments);}
                                 </div>
                             </div>
                         </div>

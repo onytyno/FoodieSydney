@@ -23,6 +23,8 @@ namespace FoodieSydney.Model
 
         public int ParentContentId { get; set; }
 
+        public Guid ParentContentGuidId { get; set; }
+
         public string GetNewCommentName()
         {
             return GetLastCommentName() + GetLastCommentNumber();
