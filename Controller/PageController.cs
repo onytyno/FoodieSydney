@@ -12,20 +12,27 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Web.Common;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 namespace FoodieSydney.Controller
 {
     public class PageController : SurfaceController
     {
-        public static IContentService contentService;
+        public IContentService contentService;
 
-        public PageController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+        public PageController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, 
+                                ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider) 
+            : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+
         {
+
         }
 
         public static List<Comment> GetCommentList(IPublishedContent Content)
         {
+            
             var CommentFolder = Content.Children.Where(x => x.ContentType.Alias == "commentFolder").FirstOrDefault();
             var List = new List<Comment>();
 
@@ -55,7 +62,8 @@ namespace FoodieSydney.Controller
                 Content = Content,
                 ContentId = Content.Id,
                 CommentName = Content.Name,
-                ParentContentId = Content.Parent.Id
+                ParentContentId = Content.Parent.Id,
+                ParentContentGuidId = Content.Parent.Key
             };
 
             return Comment;
@@ -92,61 +100,78 @@ namespace FoodieSydney.Controller
         //    }
         //}
 
-        public static void CraeteNewCommentTest(Comment comment)
+
+        public static void test(IHttpContextAccessor httpContextAccessor)
+        {
+            UmbracoHelper helper;
+
+            
+            //helper.S
+
+            //helper = httpContextAccessor.HttpContext.RequestServices.GetRequiredService<UmbracoHelper>();
+        }
+
+        public void CraeteNewCommentTest(Comment comment)
         {
             if (comment != null)
             {
-                var contentItem = contentService.Create(comment.CommentName, comment.ContentId, "comment");
-                //var contentItem = ContentService.Create(comment.CommentName, comment.ContentId, "comment");
+
+                var contentItem = this.Services.ContentService.Create(comment.CommentName, comment.ContentId, "comment");
+                ////var contentItem = ContentService.Create(comment.CommentName, comment.ContentId, "comment");
 
                 if (contentItem != null)
                 {
                     contentItem.SetValue("commentorName", comment.CommentorName);
                     contentItem.SetValue("commentContent", comment.CommentContent);
 
-                    contentService.SaveAndPublish(contentItem);
+                    this.Services.ContentService.SaveAndPublish(contentItem);
                 }
             }
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult NewComment(Comment comment)
+        {
+            if (!ModelState.IsValid)
+                return CurrentUmbracoPage();
+
+            CraeteNewCommentTest(comment);
+            return RedirectToUmbracoPage(comment.ParentContentGuidId);
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NewCommentAsync(Comment comment)
+        {
+            if (!ModelState.IsValid)
+                return CurrentUmbracoPage();
+
+            CraeteNewCommentTest(comment);
+            return RedirectToUmbracoPage(comment.ParentContentGuidId);
+
+        }
+
         //[HttpPost]
-        //public ActionResult NewComment(Comment comment)
+        //public JsonNetResult NewCommentTest(Comment comment)
         //{
+        //    var result = new JsonNetResult
+        //    {
+        //        Data = "Test"
+        //    };
         //    if (ModelState.IsValid)
         //    {
         //        CraeteNewCommentTest(comment);
-        //        return RedirectToUmbracoPage(comment.ParentContentGuidId);
+
+        //        result.Data = "Success";
+        //        return result;
         //    }
 
-        //    var node = Umbraco.Content(comment.ParentContentGuidId);
+        //    //var node = Umbraco.Content(comment.ParentContentId);
 
-        //    return CurrentUmbracoPage();
+        //    return result;
         //}
-
-        //[HttpPost]
-        //public ActionResult NewCommentAdd(Comment comment)
-        //{
-        //    //var result = new ActionResult;
-        //}
-
-        [HttpPost]
-        public JsonNetResult NewCommentTest(Comment comment)
-        {
-            var result = new JsonNetResult
-            {
-                Data = "Test"
-            };
-            if (ModelState.IsValid)
-            {
-                CraeteNewCommentTest(comment);
-
-                result.Data = "Success";
-                return result;
-            }
-
-            //var node = Umbraco.Content(comment.ParentContentId);
-
-            return result;
-        }
     }
 }

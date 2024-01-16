@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Services;
 
 namespace FoodieSydney.Model
 {
@@ -18,6 +19,8 @@ namespace FoodieSydney.Model
         public string CommentContent { get; set; }
 
         public IPublishedContent Content { get; set; }
+
+        //public IContentService service { get; set; }
 
         public int ContentId { get; set; }
 
