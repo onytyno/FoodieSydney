@@ -1,0 +1,35 @@
+﻿@* @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage *@
+@{
+    var SiblingPages = Model;
+}
+<div id="sidebar" class="4u">
+        <section>
+            <header>
+                <h2>관련 포스트</h2>
+            </header>
+            <ul class="style">
+                @foreach (var item in SiblingPages)
+                {
+                    var header = item.Value("header");
+                    var subHeader = item.Value("subHeader");
+
+                    //if  Switch list header value is true, then switch the values of header and subheader
+                    @*                             if (SwitchListHeader)
+                {
+                var temp = header;
+                header = subHeader;
+                subHeader = temp;
+                } *@
+
+                    <li>
+                        <a href="@item.Url()" class="@(item.IsAncestorOrSelf(Model) ? "active" : null)" style="text-decoration: none;">
+                            <p class="posted">@item.CreateDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="text">@header</p>
+                            <p class="text" style="font-size:150%">@subHeader</p>
+                        </a>
+                    </li>
+
+                }
+            </ul>
+        </section>
+    </div>

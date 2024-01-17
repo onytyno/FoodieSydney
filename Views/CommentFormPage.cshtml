@@ -8,7 +8,7 @@
     commentModel.ParentContentId = commentModel.Content.Parent != null ? commentModel.Content.Parent.Id : 0;
     commentModel.ParentContentGuidId = commentModel.Content.Parent != null ? commentModel.Content.Parent.Key : new Guid();
 }
-@* @using (Html.BeginForm("NewComment", "Page", FormMethod.Post))
+@using (Html.BeginForm("NewComment", "Page", FormMethod.Post))
 {
     <div>
         <div class="inputCommentor">
@@ -31,8 +31,8 @@
         @Html.HiddenFor(m => m.CommentName, commentModel.CommentName)
         @Html.HiddenFor(m => m.ParentContentGuidId, commentModel.ParentContentGuidId)
     </div>
-} *@
-
+}
+@* 
 @using (Html.BeginUmbracoForm<PageController>(nameof(PageController.NewCommentAsync), FormMethod.Post))
 {   
     @Html.AntiForgeryToken()
@@ -58,28 +58,4 @@
         @Html.HiddenFor(m => m.ParentContentGuidId, commentModel.ParentContentGuidId)
     </div>
 }
-
-@* @using (Ajax.BeginForm("NewCommentTest", "Page", new AjaxOptions { HttpMethod = "POST" }))
-{
-    <div>
-        <div class="inputCommentor">
-            @Html.LabelFor(m => m.CommentorName, new { @class = "commentLabel" })
-            <br />
-            @Html.TextBoxFor(m => m.CommentorName)
-            @Html.ValidationMessageFor(model => model.CommentorName)
-        </div>
-        <div class="inputCommentContent">
-            @Html.LabelFor(m => m.CommentContent, new { @class = "commentLabel" })
-            <br />
-            @Html.TextAreaFor(m => m.CommentContent, new { @class = "commentContentBox" })
-            @Html.ValidationMessageFor(model => model.CommentContent)
-        </div>
-        <div class="commentSubmit">
-            <input class="" type="submit" value="등록">
-        </div>
-
-        @Html.HiddenFor(m => m.ContentId, new { @Value = ContentId })
-        @Html.HiddenFor(m => m.CommentName, new { @Value = commentModel.CommentName })
-        @Html.HiddenFor(m => m.ParentContentId, new { @Value = ParentContentId })
-    </div>
-} *@
+ *@
