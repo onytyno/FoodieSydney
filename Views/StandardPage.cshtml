@@ -2,9 +2,10 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.StandardPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @using Comment = FoodieSydney.Model.Comment;
+@using FoodieSydney.Model;
 @using PageController = FoodieSydney.Controller.PageController;
 @{
-    Layout = "master.cshtml";
+    Layout = "Master.cshtml";
     var page = Model;
     var SiblingPages = Model.Parent.Children.Where(x => x.ContentType.Alias == "page");
     var image = page.Value<IPublishedContent>("image");

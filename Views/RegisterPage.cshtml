@@ -1,0 +1,18 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.RegisterPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = "Master.cshtml";
+
+    var successPageGuidID = Model.Children.Where(x => x.ContentType.Alias == "registerSuccessPage").FirstOrDefault().Key;
+
+    var viewModel = new FoodieSydney.Model.RegisterViewModel(successPageGuidID);
+
+
+    //registerSuccessPage
+   
+}
+
+@{
+    Html.RenderPartial("~/Views/Partials/RegisterForm.cshtml", viewModel);
+}
