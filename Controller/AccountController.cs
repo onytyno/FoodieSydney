@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
@@ -9,50 +10,63 @@ using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
+using Umbraco.Cms.Web.Website.Models;
 
 namespace FoodieSydney.Controller
 {
     public class AccountController : SurfaceController
     {
         private readonly IMemberManager _memberManager;
-        public AccountController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory,
-                                ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IMemberManager memberManager)
+        private readonly IMemberService _memberService;
+        private readonly IMemberSignInManager _memberSignInManager;
+
+        public AccountController(IUmbracoContextAccessor umbracoContextAccessor, 
+                                 IUmbracoDatabaseFactory databaseFactory,
+                                 ServiceContext services, 
+                                 AppCaches appCaches, 
+                                 IProfilingLogger profilingLogger, 
+                                 IPublishedUrlProvider publishedUrlProvider, 
+                                 IMemberManager memberManager, 
+                                 IMemberService memberService, 
+                                 IMemberSignInManager memberSignInManager)
             : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
 
         {
             _memberManager = memberManager;
+            _memberService = memberService;
+            _memberSignInManager = memberSignInManager;
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return CurrentUmbracoPage();
             }
 
-            //// This doesn't count login failures towards account lockout
-            //// To enable password failures to trigger account lockout, change to shouldLockout: true
-            //var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
-            //switch (result)
-            //{
-            //    case SignInStatus.Success:
-            //        return RedirectToLocal(returnUrl);
-            //    case SignInStatus.LockedOut:
-            //        return View("Lockout");
-            //    case SignInStatus.RequiresVerification:
-            //        return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-            //    case SignInStatus.Failure:
-            //    default:
-            //        ModelState.AddModelError("", "Invalid login attempt.");
-            //        return View(model);
-            //}
+            Microsoft.AspNetCore.Identity.SignInResult result = await _memberSignInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
 
-            //need to implement further
-            return RedirectToUmbracoPage(Guid.Empty);
+
+            if (result.Succeeded)
+            {
+                //redirect to certain page
+                RedirectToUmbracoPage(Guid.Empty);
+            }
+            else if (result.IsLockedOut)
+            {
+                ModelState.AddModelError("loginViewModel", "Member is locked out");
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(LoginViewModel), "Invalid username or password");
+            }
+          
+            return CurrentUmbracoPage();
         }
 
         [HttpPost]
@@ -68,9 +82,6 @@ namespace FoodieSydney.Controller
 
             var memberService = this.Services.MemberService;
 
-            var test = memberService.GetByEmail(model.Email);
-
-
             // check email exists
             if (memberService.GetByEmail(model.Email) != null)
             {
@@ -84,32 +95,47 @@ namespace FoodieSydney.Controller
             //save user into system
             memberService.Save(member);
 
-            //add Password of user
+            //get memberIdentityUser and add password
             var memberIdentityUser = new MemberIdentityUser(member.Id);
-
             await _memberManager.AddPasswordAsync(memberIdentityUser, model.Password);
 
-
-            //memberService.Create
-
-            //var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-            //var result = await UserManager.CreateAsync(user, model.Password);
-            //if (result.Succeeded)
-            //{
-            //    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-
-            //    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-            //    // Send an email with this link
-            //    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-            //    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-            //    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-            //    return RedirectToAction("Index", "Home");
-            //}
-            //AddErrors(result);
-
             //should redirect to the page that shows register success
-            return RedirectToUmbracoPage(Guid.Empty);
+            return RedirectToUmbracoPage(model.RegisterSuccessPageID);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterAsync(RegisterViewModel viewModel)
+        {
+            // if register failes, this will be triggered. 
+            if (!ModelState.IsValid)
+            {
+                return CurrentUmbracoPage();
+            }
+
+            
+
+            // check email exists
+            if (_memberService.GetByEmail(viewModel.Email) != null)
+            {
+                ModelState.AddModelError("", "Email already been used");
+                return CurrentUmbracoPage();
+            }
+
+            var identityUser = MemberIdentityUser.CreateNew(viewModel.Email, viewModel.Email, "Member", true, "Testing User");
+            IdentityResult result = await _memberManager.CreateAsync(identityUser, viewModel.Password);
+
+            RegisterModel model;
+
+            if(result.Succeeded)
+            {
+                var member = _memberService.GetByKey(identityUser.Key);
+
+                _memberService.Save(member);
+
+            }
+
+            return RedirectToUmbracoPage(viewModel.RegisterSuccessPageID);
         }
 
     }

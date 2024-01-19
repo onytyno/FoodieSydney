@@ -1,26 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Web.Website.Models;
 
 namespace FoodieSydney.Model
 {
-    public class RegisterViewModel 
+    public class RegisterViewModel : RegisterModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
-        
         public Guid RegisterSuccessPageID { get; set; }
 
         public RegisterViewModel() { }
@@ -29,10 +14,5 @@ namespace FoodieSydney.Model
         {
             RegisterSuccessPageID = PageID;
         }
-
-        //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }
